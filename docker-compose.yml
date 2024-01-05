@@ -1,0 +1,41 @@
+version: "3.3"
+services:
+  fluentd:
+    image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/grafana:$IMAGE_TAG
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    # image: grafana/fluent-plugin-loki:main
+    ports:
+      - "24224:24224"
+    command:
+      - "fluentd"
+      - "-v"
+      - "-p"
+      - "/fluentd/plugins"
+    environment:
+      LOKI_URL: http://loki:3100/loki/api/v1/push
+      LOKI_USERNAME:
+      LOKI_PASSWORD:
+    networks:
+      - loki
+    volumes:
+      - host_logs:/var/log
+      - ./fluent.conf:/fluentd/etc/fluent.conf
+      # - /home/ec2-user/fluent.conf:/fluentd/etc/fluent.conf #mount this file unto the fluent.conf file
+      # - /home/ec2-user/loki.conf:/fluentd/etc/loki.conf
+      # Needed for journald log ingestion:
+      - /etc/machine-id:/etc/machine-id
+      - /dev/log:/dev/log
+      - /var/run/systemd/journal/:/var/run/systemd/journal/
+    logging:
+      options:
+         tag: infra.monitoring
+volumes:
+  host_logs:
+networks:
+  loki:
+
+      # http://loki:3100/loki/api/v1/push
+      # - /home/ec2-user/docker-compose/fluent.conf:/fluentd/etc/fluent.conf
+      # - /home/ec2-user/docker-compose/loki.conf:/fluentd/etc/loki.conf
