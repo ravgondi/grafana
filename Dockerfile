@@ -18,6 +18,8 @@ RUN apk add --no-cache --update --virtual .build-deps \
   && apk del .build-deps \
   && rm -rf /home/fluent/.gem/ruby/2.5.0/cache/*.gem
 
+EXPOSE 24224
+
 COPY entrypoint.sh /bin/
 COPY fluent.conf /fluentd/etc/
 COPY supervisord.conf /etc/supervisord.conf
